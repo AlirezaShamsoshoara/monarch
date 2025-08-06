@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Script with Args",
+      "type": "meta-python",
+      "request": "launch",
+      "program": "/home/alisol/projects/monarch/examples/notebooks/ping_pong.py",
+    //   "args": ["--foo", "bar"],
+      "console": "internalConsole"
+    }
+  ]
+}
