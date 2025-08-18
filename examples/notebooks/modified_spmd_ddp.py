@@ -125,7 +125,7 @@ async def main():
 
     # Run the demo with extended training
     await ddp_actor.demo_basic.call(
-        num_epochs=150,
+        num_epochs=50,
         batch_size=128,
         input_size=256,
         hidden_size=512 * 32,
