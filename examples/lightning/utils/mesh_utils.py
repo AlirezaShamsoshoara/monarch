@@ -19,6 +19,8 @@ MONARCH_DEFAULT_PORT = 26600
 
 # Client allowed port range for Monarch communication
 CLIENT_ALLOWED_PORT_RANGE = "26600..26610"
+# Remote allowed port range for worker nodes
+REMOTE_ALLOWED_PORT_RANGE = "26601..26611"
 os.environ["MONARCH_FILE_LOG"] = "debug"
 
 
@@ -69,7 +71,9 @@ def create_proc_mesh(alloc):
     return proc_mesh
 
 
-def setup_proc_mesh_from_job(job=None, num_nodes=2, num_gpus=8, port=MONARCH_DEFAULT_PORT, ip_addresses_set={}):
+def setup_proc_mesh_from_job(
+    job=None, num_nodes=2, num_gpus=8, port=MONARCH_DEFAULT_PORT, ip_addresses_set={}
+):
     """
     High-level function to set up ProcMesh from an MMT job.
 
