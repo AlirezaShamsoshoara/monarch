@@ -37,7 +37,7 @@ def launch_mmt_job(num_nodes=2, num_gpus=8, mmt_job_name=""):
 
     job = MMT.run(
         command="process_allocator",
-        name=f"Multi-Node-Monarch-Titan-Scale-{num_nodes}_nodes-port_override",
+        name=mmt_job_name,
         machine=machine_type,
         studio=studio,
         num_machines=num_nodes,
