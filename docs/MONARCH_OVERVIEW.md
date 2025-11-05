@@ -338,8 +338,8 @@ graph TD
     style Root fill:#ff6b6b
     style Child1 fill:#4ecdc4
     style Child2 fill:#ffe66d
-    style GC1 fill:#95e1d3
-    style GC2 fill:#95e1d3
+    style GC1 fill:#FFFAFA
+    style GC2 fill:#FFFAFA
 ```
 
 **Key Behavior:**
@@ -643,14 +643,14 @@ graph LR
     DL2[DataLoader 2] <-->|get_batch| T2[Trainer 2]
     DL3[DataLoader 3] <-->|get_batch| T3[Trainer 3]
 
-    style DL0 fill:#ffe66d
-    style DL1 fill:#ffe66d
-    style DL2 fill:#ffe66d
-    style DL3 fill:#ffe66d
-    style T0 fill:#4ecdc4
-    style T1 fill:#4ecdc4
-    style T2 fill:#4ecdc4
-    style T3 fill:#4ecdc4
+    style DL0 fill:#000000
+    style DL1 fill:#000000
+    style DL2 fill:#000000
+    style DL3 fill:#000000
+    style T0 fill:#FFFAFA
+    style T1 fill:#FFFAFA
+    style T2 fill:#FFFAFA
+    style T3 fill:#FFFAFA
 ```
 
 ### Scenario 4: RDMA-Based Parameter Server
