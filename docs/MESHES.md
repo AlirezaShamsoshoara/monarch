@@ -38,11 +38,11 @@ graph TD
     D --> D1["hosts: 32"]
     D --> D2["gpus: 8"]
 
-    style M fill:#4ecdc4,stroke:#333,stroke-width:2px
-    style D fill:#ffe66d
-    style N fill:#ffe66d
-    style S fill:#ffe66d
-    style B fill:#ffe66d
+    style M fill:#2F4F4F,stroke:#333,stroke-width:2px
+    style D fill:#F8F8FF
+    style N fill:#F8F8FF
+    style S fill:#F8F8FF
+    style B fill:#F8F8FF
 ```
 
 **1. Multidimensional Structure**
