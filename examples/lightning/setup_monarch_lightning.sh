@@ -40,6 +40,10 @@ rustup default nightly
 
 # Install Ubuntu system dependencies
 sudo apt install -y ninja-build libunwind-dev clang
+sudo apt install -y net-tools
+sudo apt install -y iputils-ping
+sudo apt install -y lsof
+sudo apt install -y netcat-traditional
 
 # Set clang as default compiler
 export CC=clang
