@@ -37,3 +37,5 @@ docs/**/generated/**
 */sg_execution_times.rst
 
 .venv/**
+# DS_Store files
+.DS_Store
