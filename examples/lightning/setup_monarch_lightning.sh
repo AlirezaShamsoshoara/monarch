@@ -12,6 +12,9 @@ if [ -z "$HF_API_KEY" ]; then
   export HF_API_KEY
 fi
 
+pip install uv
+
+
 # Install Python packages
 pip install -U lightning_sdk
 
