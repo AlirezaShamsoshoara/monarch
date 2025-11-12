@@ -47,6 +47,7 @@ def launch_mmt_job(num_nodes=2, num_gpus=8, mmt_job_name=""):
             # "HYPERACTOR_REMOTE_ALLOC_ALLOWED_PORT_RANGE": REMOTE_ALLOWED_PORT_RANGE,
             # "HYPERACTOR_REMOTE_ALLOC_BIND_TO_INADDR_ANY": "true",
             "WORKSPACE_DIR": "/tmp",
+            "HYPERACTOR_MESSAGE_DELIVERY_TIMEOUT": "300sec"
         },
     )
 
