@@ -44,6 +44,7 @@ def setup_allocator(tcp_addresses, public_master_host_ip_address, num_nodes, num
     # )
     # os.environ["HYPERACTOR_REMOTE_ALLOC_BIND_TO_INADDR_ANY"] = "true"
     os.environ["MONARCH_FILE_LOG"] = "debug"
+    os.environ["HYPERACTOR_MESSAGE_DELIVERY_TIMEOUT"] = "300sec"
 
     enable_transport('tcp')
 
@@ -71,12 +72,18 @@ def create_proc_mesh(allocator, alloc, num_nodes=2, num_gpus=8):
     Returns:
         ProcMesh: Process mesh created from the allocation
     """
+    # host_mesh = HostMesh.allocate_nonblocking(
+    #     name="distributed_training",
+    #     extent=Extent(["hosts", "procs"], [num_nodes, num_nodes * num_gpus]),
+    #     allocator=allocator,
+    #     alloc_constraints=AllocConstraints(),
+    #     )
     host_mesh = HostMesh.allocate_nonblocking(
         name="distributed_training",
-        extent=Extent(["hosts", "procs"], [num_nodes, num_nodes * num_gpus]),
+        extent=Extent(["hosts", "dummy"], [num_nodes, 1]),  # 2 hosts, 1 "dummy" per host
         allocator=allocator,
         alloc_constraints=AllocConstraints(),
-        )
+    )
 
     # proc_mesh = host_mesh.spawn_procs({"gpus": num_gpus})
     proc_mesh = host_mesh.spawn_procs(per_host={'gpu': num_gpus})
