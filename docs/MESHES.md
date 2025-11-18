@@ -971,18 +971,11 @@ graph TB
     PM -->|spawn| AM1[ActorMesh<br/>Actor Type 1]
     PM -->|spawn| AM2[ActorMesh<br/>Actor Type 2]
 
-    style HM fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
-    style PM fill:#fff4e1,stroke:#f57c00,stroke-width:2px
-    style AM1 fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-    style AM2 fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    style HM fill:#3e9876,stroke:#0288d1,stroke-width:2px
+    style PM fill:#6a906d,stroke:#f57c00,stroke-width:2px
+    style AM1 fill:#2e5e4a,stroke:#388e3c,stroke-width:2px
+    style AM2 fill:#2e5e4a,stroke:#388e3c,stroke-width:2px
 ```
-
-### Next Steps
-
-- Read [Actor Concepts](./ACTORS.md) for actor details
-- Review [Overview](./MONARCH_OVERVIEW.md) for system architecture
-- Explore [Examples](../examples/) for patterns
-- Check [API Reference](./api/) for complete API
 
 ---
 
@@ -1043,3 +1036,11 @@ assert actors.extent == expected_extent
 # Get total size
 total = prod(actors.extent.values())
 ```
+
+
+<!-- ### Next Steps
+
+- Read [Actor Concepts](./ACTORS.md) for actor details
+- Review [Overview](./MONARCH_OVERVIEW.md) for system architecture
+- Explore [Examples](../examples/) for patterns
+- Check [API Reference](./api/) for complete API -->
