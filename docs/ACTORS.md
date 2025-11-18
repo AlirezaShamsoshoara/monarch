@@ -393,7 +393,7 @@ actor.method3.call_one(arg3)  # Message M3
 sequenceDiagram
     participant Sender
     participant ActorMailbox
-    participant Actor
+    participant ActorInstance
 
     Sender->>ActorMailbox: M1
     Sender->>ActorMailbox: M2
@@ -401,12 +401,12 @@ sequenceDiagram
 
     Note over ActorMailbox: FIFO Queue: [M1, M2, M3]
 
-    ActorMailbox->>Actor: Deliver M1
-    Note over Actor: Process M1
-    ActorMailbox->>Actor: Deliver M2
-    Note over Actor: Process M2
-    ActorMailbox->>Actor: Deliver M3
-    Note over Actor: Process M3
+    ActorMailbox->>ActorInstance: Deliver M1
+    Note over ActorInstance: Process M1
+    ActorMailbox->>ActorInstance: Deliver M2
+    Note over ActorInstance: Process M2
+    ActorMailbox->>ActorInstance: Deliver M3
+    Note over ActorInstance: Process M3
 ```
 
 ---
