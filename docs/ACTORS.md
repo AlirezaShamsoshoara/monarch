@@ -37,11 +37,11 @@ graph LR
     A --> D[Endpoints]
     A --> E[Lifecycle Hooks]
 
-    style A fill:#FFFFF0,stroke:#333,stroke-width:2px
-    style B fill:#F8F8FF
-    style C fill:#F8F8FF
-    style D fill:#F0F8FF
-    style E fill:#F0F8FF
+    style A fill:#855b9d,stroke:#333,stroke-width:2px
+    style B fill:#007c88
+    style C fill:#007c88
+    style D fill:#007c88
+    style E fill:#007c88
 ```
 
 **1. Isolation**
