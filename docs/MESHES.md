@@ -473,10 +473,10 @@ graph TB
     H1G0 -.->|selected| S10
     H1G1 -.->|selected| S11
 
-    style S00 fill:#4ecdc4
-    style S01 fill:#4ecdc4
-    style S10 fill:#4ecdc4
-    style S11 fill:#4ecdc4
+    style S00 fill:#6a906d
+    style S01 fill:#6a906d
+    style S10 fill:#6a906d
+    style S11 fill:#6a906d
 ```
 
 ### 2. Broadcasting
@@ -598,10 +598,10 @@ graph TB
         T4 --> L4[Loss 4]
     end
 
-    style T1 fill:#4ecdc4
-    style T2 fill:#4ecdc4
-    style T3 fill:#4ecdc4
-    style T4 fill:#4ecdc4
+    style T1 fill:#2e5e4a
+    style T2 fill:#2e5e4a
+    style T3 fill:#2e5e4a
+    style T4 fill:#2e5e4a
 ```
 
 ### Pattern 2: Parameter Server
@@ -668,10 +668,10 @@ graph TB
     PS <-->|get/update params| W4
 
     style PS fill:#ff6b6b
-    style W1 fill:#4ecdc4
-    style W2 fill:#4ecdc4
-    style W3 fill:#4ecdc4
-    style W4 fill:#4ecdc4
+    style W1 fill:#2e5e4a
+    style W2 fill:#2e5e4a
+    style W3 fill:#2e5e4a
+    style W4 fill:#2e5e4a
 ```
 
 ### Pattern 3: Pipeline Parallel
@@ -723,9 +723,9 @@ graph LR
     S2 --> S3[Stage 3]
     S3 --> O[Output]
 
-    style S1 fill:#4ecdc4
-    style S2 fill:#ffe66d
-    style S3 fill:#95e1d3
+    style S1 fill:#2e5e4a
+    style S2 fill:#3e9876
+    style S3 fill:#2e5e4a
 ```
 
 ### Pattern 4: Hierarchical Communication
@@ -783,11 +783,11 @@ graph TB
 
     style L1 fill:#ff6b6b
     style L2 fill:#ff6b6b
-    style W1 fill:#4ecdc4
-    style W2 fill:#4ecdc4
-    style W3 fill:#4ecdc4
-    style W4 fill:#4ecdc4
-    style F fill:#ffe66d
+    style W1 fill:#2e5e4a
+    style W2 fill:#2e5e4a
+    style W3 fill:#2e5e4a
+    style W4 fill:#2e5e4a
+    style F fill:#3e9876
 ```
 
 ---
