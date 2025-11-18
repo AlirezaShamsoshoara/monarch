@@ -155,15 +155,15 @@ Once initialized, the actor enters its main lifecycle where it processes message
 ```mermaid
 sequenceDiagram
     participant Mailbox
-    participant Actor
+    participant ActorInstance
     participant Handler
 
     loop Message Processing
-        Mailbox->>Actor: Deliver next message
-        Actor->>Handler: Invoke endpoint
+        Mailbox->>ActorInstance: Deliver next message
+        ActorInstance->>Handler: Invoke endpoint
         Handler->>Handler: Execute logic
-        Handler-->>Actor: Return result
-        Actor-->>Mailbox: Send response
+        Handler-->>ActorInstance: Return result
+        ActorInstance->>ActorInstance: Process result
     end
 ```
 
