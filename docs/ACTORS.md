@@ -517,7 +517,7 @@ graph TD
     D --> D1[spawn]
     D --> D2[host_mesh]
 
-    style A fill:#4ecdc4,stroke:#333,stroke-width:2px
+    style A fill:#007c88,stroke:#333,stroke-width:2px
 ```
 
 ---
@@ -576,14 +576,14 @@ graph TD
         end
     end
 
-    style A0 fill:#4ecdc4
-    style A1 fill:#4ecdc4
-    style A2 fill:#4ecdc4
-    style A3 fill:#4ecdc4
-    style A4 fill:#4ecdc4
-    style A5 fill:#4ecdc4
-    style A6 fill:#4ecdc4
-    style A7 fill:#4ecdc4
+    style A0 fill:#007c88
+    style A1 fill:#007c88
+    style A2 fill:#007c88
+    style A3 fill:#007c88
+    style A4 fill:#007c88
+    style A5 fill:#007c88
+    style A6 fill:#007c88
+    style A7 fill:#007c88
 ```
 
 ### Slicing Operations
@@ -645,10 +645,10 @@ graph TB
     H0G0 -.->|selected| S0
     H0G1 -.->|selected| S1
 
-    style H0G0 fill:#4ecdc4
-    style H0G1 fill:#4ecdc4
-    style S0 fill:#ffe66d
-    style S1 fill:#ffe66d
+    style H0G0 fill:#007c88
+    style H0G1 fill:#007c88
+    style S0 fill:#855b9d
+    style S1 fill:#855b9d
 ```
 
 ### Passing Actor References
@@ -958,20 +958,19 @@ graph LR
     E --> D
     D --> F[Terminate]
 
-    style A fill:#e1f5ff
-    style B fill:#fff4e1
-    style C fill:#fff4e1
-    style D fill:#e8f5e9
-    style E fill:#e8f5e9
-    style F fill:#ffebee
+    style A fill:#855b9d
+    style B fill:#007c88
+    style C fill:#007c88
+    style D fill:#007c88
+    style E fill:#13a3a4
+    style F fill:#0072c7
 ```
 
-### Next Steps
+<!-- ### Next Steps
 
 - Read [Mesh Concepts](./MESHES.md) for mesh details
 - Explore [Examples](../examples/) for practical patterns
-- Check [API Reference](./api/monarch.actor.rst) for complete API
-- Review [Getting Started](./source/examples/getting_started.py) tutorial
+- Review [Getting Started](./source/examples/getting_started.py) tutorial -->
 
 ---
 
