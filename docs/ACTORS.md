@@ -247,11 +247,11 @@ result = await calc.add.call_one(5, 3)
 ```mermaid
 sequenceDiagram
     participant Client
-    participant Actor
+    participant ActorInstance
 
-    Client->>Actor: call_one(args)
-    Note over Actor: Process message
-    Actor-->>Client: Future[Result]
+    Client->>ActorInstance: call_one(args)
+    Note over ActorInstance: Process message
+    ActorInstance-->>Client: Future[Result]
     Client->>Client: .get() waits
     Note over Client: Result available
 ```
