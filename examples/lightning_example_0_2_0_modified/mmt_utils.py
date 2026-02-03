@@ -1,9 +1,16 @@
 from lightning_sdk import Machine, MMT, Status, Studio
 
 
-def launch_mmt_job_gcp(num_nodes=2, mmt_job_name="", port=26600, num_gpus: int = 8):
+def launch_mmt_job_gcp(num_nodes=2, mmt_job_name="", port=26600, num_gpus: int = 8, use_cpu: bool = False):
     """
     Launch a multi-machine training job using Lightning SDK's MMT API.
+
+    Args:
+        num_nodes: Number of nodes to launch
+        mmt_job_name: Name for the MMT job
+        port: Port for Monarch communication
+        num_gpus: Number of GPUs per node (ignored if use_cpu=True)
+        use_cpu: If True, use CPU_X_4 machines instead of GPU machines
     """
 
     studio = Studio()
@@ -27,17 +34,20 @@ def launch_mmt_job_gcp(num_nodes=2, mmt_job_name="", port=26600, num_gpus: int =
 
     python_command: str = f"python -c 'from utils import bootstrap; bootstrap({port})'"
 
-    # Machine with T4 GPUs
-    # machine_type = getattr(Machine, f"T4_X_{num_gpus}")
+    if use_cpu:
+        # Machine with 4 X CPU
+        machine_type = Machine.CPU_X_4
+        print("Using CPU machines (CPU_X_4)")
+    else:
+        # Machine with T4 GPUs
+        # machine_type = getattr(Machine, f"T4_X_{num_gpus}")
 
-    # Machine with L4 GPUs
-    # machine_type = getattr(Machine, f"L4_X_{num_gpus}")
+        # Machine with L4 GPUs
+        # machine_type = getattr(Machine, f"L4_X_{num_gpus}")
 
-    # Machine with L40S GPUs
-    machine_type = getattr(Machine, f"L40S_X_{num_gpus}")
-
-    # Machine with 4 X CPU
-    # machine_type = getattr(Machine, "CPU_X_4")
+        # Machine with L40S GPUs
+        machine_type = getattr(Machine, f"L40S_X_{num_gpus}")
+        print(f"Using GPU machines (L40S_X_{num_gpus})")
 
     job = MMT.run(
         # command="process_allocator",
@@ -72,9 +82,16 @@ def launch_mmt_job_gcp(num_nodes=2, mmt_job_name="", port=26600, num_gpus: int =
     return job, studio
 
 
-def launch_mmt_job(num_nodes=2, mmt_job_name="", port=26600, num_gpus: int = 8):
+def launch_mmt_job(num_nodes=2, mmt_job_name="", port=26600, num_gpus: int = 8, use_cpu: bool = False):
     """
     Launch a multi-machine training job using Lightning SDK's MMT API.
+
+    Args:
+        num_nodes: Number of nodes to launch
+        mmt_job_name: Name for the MMT job
+        port: Port for Monarch communication
+        num_gpus: Number of GPUs per node (ignored if use_cpu=True)
+        use_cpu: If True, use CPU_X_4 machines instead of GPU machines
     """
 
     studio = Studio()
@@ -98,23 +115,25 @@ def launch_mmt_job(num_nodes=2, mmt_job_name="", port=26600, num_gpus: int = 8):
 
     python_command: str = f"python -c 'from utils import bootstrap; bootstrap({port})'"
 
-    # Machine with T4 GPUs
-    # machine_type = getattr(Machine, f"T4_X_{num_gpus}")
+    if use_cpu:
+        # Machine with 4 X CPU
+        machine_type = Machine.CPU_X_4
+        print("Using CPU machines (CPU_X_4)")
+    else:
+        # Machine with T4 GPUs
+        # machine_type = getattr(Machine, f"T4_X_{num_gpus}")
 
-    # Machine with L4 GPUs
-    # machine_type = getattr(Machine, f"L4_X_{num_gpus}")
+        # Machine with L4 GPUs
+        # machine_type = getattr(Machine, f"L4_X_{num_gpus}")
 
-    # Machine with L40S GPUs
-    machine_type = getattr(Machine, f"L40S_X_{num_gpus}")
-
-    # Machine with 4 X CPU
-    # machine_type = getattr(Machine, "CPU_X_4")
+        # Machine with L40S GPUs
+        machine_type = getattr(Machine, f"L40S_X_{num_gpus}")
+        print(f"Using GPU machines (L40S_X_{num_gpus})")
 
     job = MMT.run(
         # command="process_allocator",
         command=python_command,
         name=mmt_job_name,
-        # machine=Machine.CPU_X_4,
         machine=machine_type,
         studio=studio,
         num_machines=num_nodes,
