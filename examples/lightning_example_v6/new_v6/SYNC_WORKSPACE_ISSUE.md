@@ -1,4 +1,90 @@
-# Issue: `sync_workspace` Hangs When Using `attach_to_workers` with Remote Machines
+# Issue: `sync_workspace` Hangs (rsync daemon `hosts allow` name resolution)
+
+> ## 2026-07 UPDATE — actual root cause (supersedes the "network topology" analysis below)
+>
+> After live debugging on a Lightning studio (`torchmonarch 0.6.0.dev20260606`), the
+> real cause is **not** the client/remote network topology. The rsync data path is
+> bridged over hyperactor channels — the worker's rsync never dials the client's
+> localhost directly — so localhost binding is not the blocker.
+>
+> The daemon Monarch spawns is hardcoded with:
+> ```
+> hosts allow = localhost ip6-localhost
+> ```
+> On the affected container, rsync fails to resolve those loopback names when
+> evaluating the allow-list, logging (in `/tmp/rsyncd.*/log`):
+> ```
+> malformed address localhost: Name or service not known
+> connect from UNKNOWN (localhost)
+> ```
+> so it **denies the bridged connection**, and the client blocks forever waiting
+> for a transfer that never starts.
+>
+> **What we established:**
+> - `rsync` is installed (`/usr/bin/rsync` 3.2.7); `attach_to_workers` and mesh
+>   comms work — the hang is purely in the rsync `hosts allow` check.
+> - A **direct** manual test of an rsync daemon with `hosts allow = localhost
+>   ip6-localhost` bound to `127.0.0.1` **allows** the connection
+>   (`rsync allowed access ... from localhost (127.0.0.1)`). So hostname-based
+>   `hosts allow` is *not* fundamentally broken.
+> - Monarch's daemon fails because it binds **`::1` (IPv6) first**, and when
+>   `localhost` doesn't resolve in the daemon's IPv6 family (pristine `/etc/hosts`
+>   had `localhost` only on the IPv4 line), rsync logs `malformed address
+>   localhost` on the first allow token and bails → denies → hang.
+> - A manual daemon with **numeric** `hosts allow = 127.0.0.1 ::1` always allows
+>   the connection with no name lookup at all.
+>
+> **Blocker #1 fix (works): numeric `hosts allow` via an rsync shim.** A tiny
+> `rsync` shim earlier on `PATH` rewrites the daemon config's `hosts allow` to
+> numeric `127.0.0.1 ::1`. Verified on the live studio: the shim is invoked
+> (`[shim] ... --daemon ... --config=...`) and the daemon config ends up as
+> `hosts allow = 127.0.0.1 ::1` — the exact config that a *manual* `rsync` test
+> accepts.
+>
+ ## Blocker #2 (SCRIPT: fixed; JUPYTER: broken)
+>
+> With the shim fixing `hosts allow`, the second requirement is **how the call is
+> awaited**:
+>
+> - **Plain `python` script — WORKS RELIABLY.** Run `sync_workspace` as an
+>   asyncio **Task** (`asyncio.wait_for(...)`), NOT a bare `await`. Driving it as
+>   a task lets the event loop service Monarch's rsync-bridge / subprocess
+>   background work. A bare `await` fails with `unexpected early exit: ... 127`.
+>   A tiny retry loop covers the occasional transient. Verified repeatedly:
+>   `SYNC OK`, files transferred (`run_native_sync.py`).
+>   (An `ENOENT`/`NotFound` seen during debugging was an artifact of a diagnostic
+>   shim redirecting the daemon `--log-file` out of Monarch's temp dir — not a
+>   real bug. Source dir `/tmp` vs `/teamspace` and `RUST_LOG` were both ruled
+>   out.)
+> - **Jupyter kernel — BROKEN.** Reproduced 5× via nbconvert in a clean
+>   environment: ipykernel's persistent asyncio event loop reaps Monarch's rsync
+>   daemon subprocess → `unexpected early exit 127` (or, with a wrapper shim, the
+>   transfer completes but the `await` never returns). `asyncio.wait_for`, a
+>   worker-thread `asyncio.run`, `SIGCHLD=SIG_DFL`, and killing all stray
+>   processes were tried — none fixed it. This is a Monarch/ipykernel subprocess
+>   conflict, not user-fixable.
+>
+> **Bottom line:**
+> - **Native `sync_workspace` in a script:** ✅ works — `run_native_sync.py`
+>   (shim + `wait_for` + retry). Run with `python run_native_sync.py`.
+> - **Native `sync_workspace` in a notebook:** ❌ not viable on this build.
+> - **In-notebook workflow:** use the **actor-based push**
+>   (`studio_2_workspace_sync.ipynb`) — no rsync, reliable in notebook and script.
+>
+> **Upstream fix suggestion:** Monarch's rsync daemon should use numeric loopback
+> (or a secrets file) for `hosts allow` instead of hostnames, so it doesn't
+> depend on the container resolving `localhost` to a native `::1`.
+>
+> **Upstream fix suggestion:** Monarch's rsync daemon should use numeric loopback
+> (`127.0.0.1`/`::1`) or a secrets file for `hosts allow`, not hostnames, so it
+> doesn't depend on container name resolution.
+>
+> The Monarch transport port (e.g. `26600`) is unrelated — the rsync daemon picks
+> its own ephemeral port.
+
+---
+
+## Original report (historical — root cause since corrected above)
 
 ## Summary
 

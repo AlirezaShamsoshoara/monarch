@@ -1,15 +1,13 @@
-# Monarch × Lightning AI Studios — v6
+# Monarch × Lightning AI Studios
 
 Interactive, multi-node distributed training and debugging with
 [**Monarch**](https://github.com/meta-pytorch/monarch) (Meta's distributed
 actor framework) + [**TorchTitan**](https://github.com/pytorch/torchtitan) on
-[**Lightning AI**](https://lightning.ai) — updated for the current Monarch API
-("v6", v0.4+).
+[**Lightning AI**](https://lightning.ai).
 
-These are the same studios as `../old_v0/`, ported from the deprecated Monarch
-**v0** API to the current one. They mirror the flow proven out in the working
-`../../monarch_lightning_supercell/monarch_benchmark_lightning_supercell_ali.py`
-benchmark.
+> **Monarch version:** these studios were built and verified against
+> **`torchmonarch 0.6.0.dev20260606`**. Install with `pip install torchmonarch`
+> (or pin that exact version for a byte-for-byte match).
 
 ## Notebooks
 
@@ -17,15 +15,25 @@ benchmark.
 |---|---|---|
 | [`studio_0_monarch_basics.ipynb`](./studio_0_monarch_basics.ipynb) | Actors, endpoints, process meshes, ping-pong | Local (no cluster) |
 | [`studio_1_getting_started.ipynb`](./studio_1_getting_started.ipynb) | Multi-node TorchTitan training (Qwen3-0.6B) | GPU (L40S) |
-| [`studio_2_workspace_sync.ipynb`](./studio_2_workspace_sync.ipynb) | Hot-reload files with `sync_workspace` | CPU |
+| [`studio_2_workspace_sync.ipynb`](./studio_2_workspace_sync.ipynb) | Hot-reload files to workers via a Monarch actor (edit → sync → no restart) | Local + CPU |
 | [`studio_3_interactive_debugging.ipynb`](./studio_3_interactive_debugging.ipynb) | Env-var management + `monarch debug` breakpoints | CPU |
 | [`monarch_lightning.ipynb`](./monarch_lightning.ipynb) | Hero notebook: training + all advanced features (Llama-3.1-8B) | GPU (L40S) |
+
+## Scripts
+
+- **[`run_native_sync.py`](./run_native_sync.py)** — Monarch's **native**
+  `sync_workspace` (rsync-based, delta transfers) as a runnable script:
+  `python run_native_sync.py`. Native `sync_workspace` works from a Python
+  script but **not** from inside a Jupyter kernel on this build, so use the
+  script for the native path and `studio_2_workspace_sync.ipynb` (actor-based)
+  for the in-notebook path. Details in
+  [`SYNC_WORKSPACE_ISSUE.md`](./SYNC_WORKSPACE_ISSUE.md).
 
 ## Supporting files
 
 - **`utils.py`** — worker `bootstrap()` (runs the Monarch worker loop) + client IP helpers. Imported on **both** the workers and the client.
 - **`mmt_utils.py`** — `launch_mmt_job()` for Lightning MMT (GPU or CPU).
-- **`SYNC_WORKSPACE_ISSUE.md`** — the known `sync_workspace` limitation on Lightning (read before Studio 2).
+- **`SYNC_WORKSPACE_ISSUE.md`** — engineering notes on Monarch's native `sync_workspace` on this build (what works, what doesn't, and why). Not needed to run the studios.
 - **`assets/`** — architecture diagram + screenshots used by the notebooks.
 
 ## Recommended path
@@ -43,23 +51,7 @@ restart instead of launching a new job.
 - Monarch installed on the studio (and snapshotted to workers): `pip install torchmonarch`
 - For training studios: TorchTitan + a Hugging Face token for the tokenizer.
 
----
-
-## What changed from `old_v0` (Monarch v0 → v6)
-
-| Concern | old_v0 (Monarch v0) | new_v6 (current) |
-|---|---|---|
-| Force old runtime | `os.environ["MONARCH_V0_WORKAROUND_DO_NOT_USE"] = "1"` | removed |
-| Worker command | `process_allocator` | `python -c 'from utils import bootstrap; bootstrap(PORT)'` |
-| Client setup | `RemoteAllocator` + `StaticRemoteAllocInitializer` + `MasterNodeServer` HTTP registration | `enable_transport(...)` + `attach_to_workers(...)` |
-| Address format | `tcp!IP:PORT` | `tcp://IP:PORT@tcp://0.0.0.0:PORT` (dial\@bind alias) |
-| Build the mesh | `setup_proc_mesh_from_job(job, ...)` → `ProcMesh.from_alloc(alloc)` | `host_mesh = attach_to_workers(...)` → `host_mesh.spawn_procs(per_host={"gpus": N})` |
-| Local mesh (Studio 0) | `proc_mesh(gpus=N)` | `this_host().spawn_procs(per_host={"gpus": N})` |
-| Distributed env vars | `from monarch.utils import setup_env_for_distributed` | `from monarch.spmd import setup_torch_elastic_env_async` (notebooks import the new name and fall back to the old one) |
-| Workspace sync | `proc_mesh.sync_workspace(...)` | `host_mesh.sync_workspace(...)` (`proc_mesh.sync_workspace` now raises) |
-| Utils layout | `utils/` package (`ip_utils`, `mesh_utils`, `master_node`, `mmt_utils`) | flat `utils.py` + `mmt_utils.py` |
-
-### The v6 connection flow in one glance
+## The connection flow in one glance
 
 ```python
 # CLIENT (this notebook)
@@ -72,17 +64,16 @@ await proc_mesh.logging_option(stream_to_client=True, aggregate_window_sec=3)
 actors = proc_mesh.spawn("my_actor", MyActor, ...)
 ```
 
-## Known limitations
+## Workspace sync — two options
 
-- **`sync_workspace` hangs on Lightning remote workers.** The client's rsync
-  daemon binds to `127.0.0.1`, which the remote workers can't reach. Studio 2
-  shows the intended API but flags this prominently; see
-  [`SYNC_WORKSPACE_ISSUE.md`](./SYNC_WORKSPACE_ISSUE.md) for the root cause and
-  workarounds (manual `rsync`/`scp`, shared cloud storage, or baking files into
-  the studio snapshot).
-- When spawning **CPU** procs that you later want to `sync_workspace`, name the
-  per-host dimension `"gpus"` (e.g. `per_host={"gpus": 4}`) — `sync_workspace`
-  asserts the mesh labels are a subset of `{"gpus", "hosts"}`.
+- **In a notebook →** `studio_2_workspace_sync.ipynb` (a small Monarch actor
+  pushes files over the mesh — no rsync, reliable in Jupyter and scripts).
+- **Native `sync_workspace` (rsync) →** run `python run_native_sync.py`. It
+  installs a one-line `rsync` shim (rewrites the daemon's `hosts allow` to
+  numeric loopback, which this container needs) and runs the sync as an asyncio
+  task. Keep IPv6 loopback enabled (don't `disable_ipv6`). Native
+  `sync_workspace` does **not** work inside a Jupyter kernel on this build — see
+  [`SYNC_WORKSPACE_ISSUE.md`](./SYNC_WORKSPACE_ISSUE.md).
 
 ## Cleanup
 

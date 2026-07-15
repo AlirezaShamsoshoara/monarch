@@ -1,11 +1,11 @@
-"""Worker-side + client-side helpers for the Monarch v6 Lightning studios.
+"""Worker-side + client-side helpers for the Monarch Lightning studios.
 
 This replaces the old ``utils/`` package (``ip_utils.py``, ``mesh_utils.py``,
 ``master_node.py``) that the ``old_v0`` notebooks used with the Monarch **v0**
 API (``RemoteAllocator`` + ``process_allocator`` + a custom master-node HTTP
 registration server).
 
-In Monarch v6 the flow is much simpler:
+In current Monarch the flow is much simpler:
 
   * every remote worker runs ``bootstrap(port)`` which starts a long-lived
     Monarch worker loop (``run_worker_loop_forever``);

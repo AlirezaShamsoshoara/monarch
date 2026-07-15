@@ -1,21 +1,30 @@
-"""Lightning AI Multi-Machine-Training (MMT) launcher for Monarch v6.
+"""Lightning AI Multi-Machine-Training (MMT) launcher for Monarch.
 
 Replaces the old ``utils/mmt_utils.py`` that launched workers with
 ``command="process_allocator"`` (the Monarch v0 remote-allocator daemon).
 
-In v6 each worker instead runs the Monarch worker loop directly via
+Each worker instead runs the Monarch worker loop directly via
 ``python -c 'from utils import bootstrap; bootstrap(<port>)'`` (see
 ``utils.py``). The client then connects with ``attach_to_workers`` — there is
 no more ``RemoteAllocator`` / ``StaticRemoteAllocInitializer`` / master-node
 registration server.
 
 IMPORTANT: ``utils.py`` must be importable from the worker's working
-directory. On Lightning the studio environment is snapshotted to the workers,
-so keeping ``utils.py`` next to your notebook is enough.
+directory. On Lightning the studio environment is snapshotted to the workers
+at the same absolute path, so the worker command below ``cd``s into the
+directory that holds this module (``utils.py`` lives next to it) and also puts
+it on ``PYTHONPATH`` before running the bootstrap.
 """
+
+import os
 
 from lightning_sdk import Machine, MMT, Status, Studio
 
+
+# Directory holding this module (and utils.py). The Lightning studio is
+# snapshotted to the workers at the same absolute path, so the worker can cd
+# here / import utils from here.
+_UTILS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Where synced workspaces land on the workers (used by Studio 2 / sync_workspace).
 WORKSPACE_DIR = "/tmp"
@@ -25,17 +34,25 @@ def _base_env(use_cpu: bool) -> dict:
     """Env vars forwarded to every worker.
 
     Log-forwarding + file-capture let the client stream aggregated worker logs
-    back into the notebook (``proc_mesh.logging_option(...)``).
+    back into the notebook (``proc_mesh.logging_option(...)``). ``PYTHONPATH``
+    makes ``utils.py`` importable regardless of the worker's working directory.
     """
     env = {
         "XDG_RUNTIME_DIR": "/tmp",
         "WORKSPACE_DIR": WORKSPACE_DIR,
+        "PYTHONPATH": _UTILS_DIR,
         "MONARCH_FILE_LOG": "debug",
         "HYPERACTOR_MESH_ENABLE_LOG_FORWARDING": "true",
         "HYPERACTOR_MESH_ENABLE_FILE_CAPTURE": "true",
         "HYPERACTOR_MESH_TAIL_LOG_LINES": "100",
     }
     return env
+
+
+def _bootstrap_command(port: int) -> str:
+    """Worker command: cd into the utils dir (so ``from utils import`` works
+    regardless of the worker's CWD), then run the Monarch worker loop."""
+    return f"cd {_UTILS_DIR} && python -c 'from utils import bootstrap; bootstrap({port})'"
 
 
 def launch_mmt_job(
@@ -77,8 +94,8 @@ def launch_mmt_job(
     studio.install_plugin("multi-machine-training")
     print(f"Launching MMT job '{mmt_job_name}' with {num_nodes} nodes (use_cpu={use_cpu})...")
 
-    # v6: workers run the Monarch worker loop, NOT process_allocator.
-    python_command = f"python -c 'from utils import bootstrap; bootstrap({port})'"
+    # workers run the Monarch worker loop, NOT process_allocator.
+    python_command = _bootstrap_command(port)
 
     if use_cpu:
         machine_type = Machine.CPU_X_4
@@ -125,7 +142,7 @@ def launch_mmt_job_gcp(
     studio.install_plugin("multi-machine-training")
     print(f"Launching MMT job (GCP) '{mmt_job_name}' with {num_nodes} nodes...")
 
-    python_command = f"python -c 'from utils import bootstrap; bootstrap({port})'"
+    python_command = _bootstrap_command(port)
 
     if use_cpu:
         machine_type = Machine.CPU_X_4
